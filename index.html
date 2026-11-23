@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repaso de Python</title>
+<script>try{const t=localStorage.getItem("repaso-python-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: claro y cercano, como un buen docente que corrige al lado tuyo.
+   IDEA: un cuaderno de clase cuadriculado con marcas de corrección.
+   PICTURE: el editor con la corrección caso por caso es la imagen principal.
+   COLOUR and TYPE: tinta azul dominante, resaltador amarillo de apoyo, rojo de corrección como acento; Lexend + JetBrains Mono.
+   LAYOUT: banda azul con pestañas; debajo, una columna de lectura sobre papel cuadriculado. */
+:root{color-scheme:light dark;
+--bg:light-dark(#fbfaf6,#0f1626);--grid:light-dark(rgba(29,63,191,.06),rgba(143,168,255,.05));
+--ink:light-dark(#14213d,#e8ecf6);--soft:light-dark(#55607a,#a9b3cc);--faint:light-dark(#7a849c,#7f8bab);
+--blue:light-dark(#1d3fbf,#8fa8ff);--on-blue:light-dark(#ffffff,#0f1626);--band:light-dark(#1d3fbf,#17245a);
+--blue-soft:light-dark(rgba(29,63,191,.07),rgba(143,168,255,.12));
+--hl:light-dark(#ffe066,#ffd84a);--red:light-dark(#c63b3b,#ff8383);--ok:light-dark(#1f7a45,#5ad691);
+--card:light-dark(#ffffff,#16203a);--line:light-dark(#e3e6ef,#26324f);--line-strong:light-dark(#cdd3e2,#3a4870);
+--code:light-dark(#f4f6fb,#0d1424);
+--sh:light-dark(rgba(20,33,61,.05),rgba(0,0,0,.30));--sh2:light-dark(rgba(20,33,61,.07),rgba(0,0,0,.40));
+--rim:light-dark(rgba(255,255,255,0),rgba(255,255,255,.04));
+--ease-out:cubic-bezier(.23,1,.32,1)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;color:var(--ink);font:16px/1.65 Lexend,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased;
+background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+code,pre,textarea{font-family:"JetBrains Mono",ui-monospace,monospace}
+code{background:var(--code);border:1px solid var(--line);padding:0 5px;border-radius:5px;font-size:.86em;overflow-wrap:anywhere;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+pre{background:var(--code);padding:12px 14px;border-radius:10px;overflow-x:auto;font-size:13.5px;line-height:1.6;margin:12px 0 0;border:1px solid var(--line)}
+a{color:var(--blue);text-underline-offset:3px;text-decoration-thickness:1px}
+mark{background:var(--hl);color:#14213d;padding:1px 5px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+
+/* Header */
+header{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 70%),var(--band);color:#fff;padding:36px max(5vw,16px) 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.hwrap,.wrap{max-width:980px;margin:0 auto}
+h1{font-size:clamp(28px,4.4vw,44px);line-height:1.08;margin:0 0 10px;font-weight:700;letter-spacing:-.025em;text-wrap:balance}
+.sub{margin:0;color:rgba(255,255,255,.82);max-width:60ch;text-wrap:pretty}
+.status{display:inline-flex;align-items:flex-start;gap:9px;margin-top:18px;font-size:13.5px;line-height:1.45;max-width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:6px 14px 6px 11px;border-radius:16px}
+.status i{flex:none;margin-top:.42em;width:8px;height:8px;border-radius:50%;background:#ffd84a;display:inline-block;box-shadow:0 0 0 3px rgba(255,216,74,.22)}
+.status.ok i{background:#5ad691;box-shadow:0 0 0 3px rgba(90,214,145,.22)}
+.status.bad i{background:#ff8383;box-shadow:0 0 0 3px rgba(255,131,131,.22)}
+nav.tabs{display:flex;gap:4px;margin-top:28px;flex-wrap:wrap}
+nav.tabs a{color:rgba(255,255,255,.78);text-decoration:none;padding:12px 20px;border-radius:12px 12px 0 0;font-weight:500;font-size:15px;background:rgba(255,255,255,.08);min-height:44px;transition:background-color 150ms ease,color 150ms ease}
+nav.tabs a[aria-current=true]{background:var(--bg);color:var(--ink);font-weight:700}
+
+/* Type hierarchy */
+main{padding:36px max(5vw,16px) 72px}
+h2{font-size:clamp(25px,3vw,31px);line-height:1.15;margin:0 0 8px;letter-spacing:-.02em;text-wrap:balance}
+h3{font-size:17px;font-weight:700;letter-spacing:-.005em;margin:0 0 6px}
+section>h3{display:flex;align-items:center;gap:10px;font-size:21px;letter-spacing:-.015em;margin:48px 0 14px}
+section>h3::before{content:"";width:4px;height:20px;border-radius:2px;background:var(--blue);flex:none}
+.lead{color:var(--soft);margin:0 0 22px;max-width:66ch;font-size:17px;text-wrap:pretty}
+.card p{margin:0 0 4px}.card ul{margin:10px 0 0;padding-left:20px}.card li{margin:8px 0}.card li::marker{color:var(--faint)}
+
+/* Surfaces */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px clamp(16px,3vw,28px);margin:16px 0;
+box-shadow:inset 0 1px 0 var(--rim),0 1px 2px var(--sh),0 8px 24px -12px var(--sh2)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.two .card{margin:0;display:flex;flex-direction:column}
+.two .card p{color:var(--soft);font-size:15px;margin-bottom:12px}
+.two .card pre{margin-top:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding-top:4px}
+td:first-child{font-weight:500}
+tbody tr:last-child td{border-bottom:0}
+ul.check{list-style:none;padding:0;margin:0}
+ul.check li{padding:10px 0 10px 32px;margin:0;position:relative;border-bottom:1px solid var(--line)}
+ul.check li:last-child{border-bottom:0}
+ul.check li::before{content:"";position:absolute;left:2px;top:15px;width:16px;height:16px;border:1.5px solid var(--line-strong);border-radius:5px;background:var(--code)}
+
+/* Exercise picker */
+.picker{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.picker a{display:block;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;min-height:44px;font-size:14px;font-weight:500;line-height:1.3;
+box-shadow:0 1px 2px var(--sh);transition:border-color 150ms ease,background-color 150ms ease,box-shadow 150ms ease,transform 160ms var(--ease-out)}
+.picker a b{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:3px}
+.picker a:active{transform:scale(.97)}
+.picker a[aria-current=true]{border-color:var(--blue);background:var(--blue-soft);box-shadow:inset 0 0 0 1px var(--blue)}
+.picker a[aria-current=true] b{color:var(--blue)}
+.picker a.done b::after{content:"✓";display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--ok);color:var(--card);font-size:10px;letter-spacing:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}
+.chip{font-size:13px;font-weight:500;padding:3px 11px;border-radius:99px;background:var(--code);border:1px solid var(--line);color:var(--soft)}
+.chip.loop{background:var(--hl);color:#14213d;border-color:transparent}
+.enun{max-width:70ch}.enun p{margin:0 0 10px}.enun ol{padding-left:22px;margin:10px 0}.enun li{margin:6px 0}
+
+/* Editor */
+.ed{position:relative;margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+.ed label{font-weight:700;font-size:14px;display:block;margin-bottom:8px}
+textarea{width:100%;min-height:300px;resize:vertical;font-size:14.5px;line-height:1.6;padding:16px;border-radius:12px;border:1px solid var(--line-strong);background:var(--code);color:var(--ink);tab-size:4;white-space:pre;overflow:auto;
+box-shadow:inset 0 1px 2px var(--sh);transition:border-color 150ms ease,box-shadow 150ms ease}
+textarea:focus{outline:none;border-color:var(--blue);box-shadow:inset 0 1px 2px var(--sh),0 0 0 4px var(--blue-soft)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;font-size:15px;font-weight:500;min-height:44px;padding:10px 18px;border-radius:10px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);cursor:pointer;
+box-shadow:0 1px 2px var(--sh);transition:transform 160ms var(--ease-out),background-color 150ms ease,border-color 150ms ease,color 150ms ease,filter 150ms ease}
+button:active:not(:disabled){transform:scale(.97)}
+button.main{background:var(--blue);color:var(--on-blue);border-color:transparent;font-weight:700;padding-inline:22px;
+box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 2px var(--sh2),0 4px 12px -4px color-mix(in srgb,var(--blue) 45%,transparent)}
+button:disabled{opacity:.6;cursor:wait}
+.note{font-size:13.5px;color:var(--faint);margin:10px 0 0}
+
+/* Results */
+.res{margin-top:20px}
+.res:empty{display:none}
+.sum{font-weight:700;font-size:17px;margin:0 0 12px;padding:12px 16px;border-radius:12px;border:1px solid}
+.sum.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 9%,transparent);border-color:color-mix(in srgb,var(--ok) 28%,transparent)}
+.sum.bad{color:var(--red);background:color-mix(in srgb,var(--red) 8%,transparent);border-color:color-mix(in srgb,var(--red) 26%,transparent)}
+.rule{display:flex;gap:10px;padding:3px 4px;font-size:14.5px;color:var(--soft)}
+.rule span:first-child{width:18px;flex:none;font-weight:700}
+.y{color:var(--ok)}.n{color:var(--red)}
+.case{border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:10px;padding:11px 14px;margin:10px 0;background:var(--card);box-shadow:0 1px 2px var(--sh)}
+.case.fail{border-left-color:var(--red)}
+.case p{margin:0;font-size:14.5px;color:var(--soft)}
+.case p b{color:var(--ok)}.case.fail p b{color:var(--red)}
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px}
+.cmp small{color:var(--faint);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cmp pre{margin-top:4px}
+.msg{color:var(--red);font-size:14.5px;margin:10px 0 0}
+.hint{color:var(--blue);font-size:14.5px;font-weight:500;margin:10px 0 0}
+
+/* Disclosures */
+details{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 16px;transition:border-color 150ms ease}
+details[open]{padding-bottom:14px;border-color:var(--line-strong)}
+summary{cursor:pointer;font-weight:500;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;transition:color 150ms ease}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);opacity:.6;transition:transform 200ms var(--ease-out);flex:none}
+details[open]>summary::after{transform:rotate(-135deg) translate(-2px,-2px)}
+details>p{margin:4px 0 0;color:var(--soft)}
+.next{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-weight:700;text-decoration:none}
+.next:hover{text-decoration:underline}
+.foot{background:var(--band);color:rgba(255,255,255,.8);text-align:center;padding:22px max(5vw,16px);font-size:14px;font-weight:500;letter-spacing:.01em}
+
+@media(hover:hover) and (pointer:fine){
+nav.tabs a:not([aria-current=true]):hover{background:rgba(255,255,255,.16);color:#fff}
+.picker a:not([aria-current=true]):hover{border-color:var(--line-strong);box-shadow:0 1px 2px var(--sh),0 4px 12px -6px var(--sh2)}
+button:not(.main):not(:disabled):hover{border-color:var(--blue);color:var(--blue)}
+button.main:not(:disabled):hover{filter:brightness(1.08)}
+summary:hover{color:var(--blue)}
+}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack tbody tr:last-child{border-bottom:0}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;color:var(--faint)}}
+@media(max-width:700px){.picker{grid-template-columns:repeat(2,minmax(0,1fr))}.two,.cmp{grid-template-columns:minmax(0,1fr)}nav.tabs a{padding:10px 14px}}
+@media(prefers-reduced-motion:reduce){.res>*{animation:res-fade 200ms ease both}@keyframes res-fade{from{opacity:0}}}
+@media(prefers-reduced-motion:no-preference){
+/* Resultados del corrector: entran en cascada, el veredicto primero */
+.res>*{animation:res-in 240ms var(--ease-out) both}
+.res>.sum{animation-duration:280ms}
+.res>.sum.ok{animation-name:res-pop}
+.res>:nth-child(2){animation-delay:45ms}.res>:nth-child(3){animation-delay:80ms}.res>:nth-child(4){animation-delay:110ms}
+.res>:nth-child(5){animation-delay:135ms}.res>:nth-child(6){animation-delay:155ms}.res>:nth-child(7){animation-delay:172ms}
+.res>:nth-child(n+8){animation-delay:186ms}
+@keyframes res-in{from{opacity:0;transform:translateY(6px)}}
+@keyframes res-pop{from{opacity:0;transform:scale(.97)}}
+.status:not(.ok):not(.bad) i{animation:pulse 1.4s ease-in-out infinite}@keyframes pulse{50%{opacity:.45}}
+}
+
+/* ---------- Estilo "Apple": limpio y táctil ----------
+   Superficies sin bordes sobre gris de sistema, tipografía del sistema con tracking negativo,
+   controles en cápsula y respuesta inmediata al presionar. */
+:root{--bg:light-dark(#f5f5f7,#000);--ink:light-dark(#1d1d1f,#f5f5f7);--soft:light-dark(#6e6e73,#a1a1a6);--faint:light-dark(#86868b,#8d8d92);
+--blue:light-dark(#0071e3,#2997ff);--blue-hover:light-dark(#0077ed,#47a5ff);--on-blue:#fff;--blue-soft:light-dark(rgba(0,113,227,.12),rgba(41,151,255,.20));
+--ok:light-dark(#248a3d,#30d158);--red:light-dark(#d70015,#ff453a);
+--card:light-dark(#fff,#1c1c1e);--fill:light-dark(rgba(118,118,128,.12),rgba(118,118,128,.24));--fill-press:light-dark(rgba(118,118,128,.2),rgba(118,118,128,.36));
+--line:light-dark(rgba(0,0,0,.08),rgba(255,255,255,.1));--line-strong:light-dark(rgba(0,0,0,.16),rgba(255,255,255,.2));--code:light-dark(#f5f5f7,#2c2c2e);
+--sh:light-dark(rgba(0,0,0,.04),transparent);--sh2:light-dark(rgba(0,0,0,.07),transparent);--rim:light-dark(transparent,rgba(255,255,255,.04));--band:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;font-size:17px;line-height:1.47;letter-spacing:-.022em;background-image:none}
+code,pre,textarea{font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,monospace;letter-spacing:0}
+a,button,summary{-webkit-tap-highlight-color:transparent}
+button,summary,.picker a,nav.tabs a{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+:is(button,a,summary):focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 55%,transparent);outline-offset:2px}
+mark{background:light-dark(#fff1a8,rgba(255,214,10,.28));color:inherit}
+
+/* Cabecera: título grande sobre el fondo, sin banda */
+header{background:var(--bg);color:var(--ink);padding-top:48px;border:0}
+h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Inter,system-ui,sans-serif;font-size:clamp(34px,5vw,52px);font-weight:700;letter-spacing:-.025em;line-height:1.07}
+.sub{color:var(--soft);font-size:19px;line-height:1.42;letter-spacing:-.02em}
+.status{background:var(--card);border:0;color:var(--soft);box-shadow:0 1px 2px var(--sh),0 2px 10px var(--sh2);letter-spacing:-.01em}
+/* Pestañas como control segmentado */
+nav.tabs{display:flex;width:fit-content;flex-wrap:nowrap;max-width:100%;gap:0;padding:2px;margin-top:28px;background:var(--fill);border-radius:10px}
+nav.tabs a{background:transparent;color:var(--ink);border-radius:8px;min-height:40px;padding:9px 22px;font-size:15px;font-weight:500;white-space:nowrap;
+transition:background-color 200ms ease,box-shadow 200ms ease,transform 160ms var(--ease-out)}
+nav.tabs a[aria-current=true]{background:light-dark(#fff,#636366);color:var(--ink);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+nav.tabs a:active{transform:scale(.97)}
+
+/* Jerarquía */
+main{padding-top:32px}
+h2{font-size:clamp(26px,3.2vw,34px);font-weight:700;letter-spacing:-.022em}
+h3{font-weight:600;letter-spacing:-.02em}
+section>h3{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:52px 0 14px}
+section>h3::before{display:none}
+.lead{font-size:19px;letter-spacing:-.02em}
+
+/* Superficies */
+.card{border:0;border-radius:18px;box-shadow:inset 0 1px 0 var(--rim),0 1px 2px var(--sh),0 6px 24px var(--sh2)}
+.two{gap:16px}
+pre{border:0;border-radius:12px;font-size:13.5px}
+code{border:0;border-radius:6px}
+th{text-transform:none;letter-spacing:-.01em;font-size:13px;font-weight:600}
+ul.check li::before{border-radius:50%;border:1.5px solid var(--line-strong);background:transparent;width:18px;height:18px;top:13px}
+
+/* Selector de ejercicios: baldosas que se hunden al tocarlas */
+.picker{gap:10px}
+.picker a{border:0;border-radius:14px;padding:13px 14px;box-shadow:0 1px 2px var(--sh),0 4px 14px var(--sh2)}
+.picker a b{letter-spacing:.02em}
+.picker a[aria-current=true]{background:var(--blue);color:#fff;box-shadow:0 6px 18px -8px light-dark(color-mix(in srgb,#0071e3 55%,transparent),color-mix(in srgb,#2997ff 30%,transparent))}
+.picker a[aria-current=true] b{color:rgba(255,255,255,.78)}
+.chip{border:0;background:var(--fill);color:var(--soft)}
+.chip.loop{background:var(--blue-soft);color:var(--blue)}
+
+/* Editor */
+.ed{border-top-color:var(--line)}
+textarea{border:1px solid transparent;background:var(--code);border-radius:14px;box-shadow:none}
+textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blue-soft)}
+
+/* Botones en cápsula */
+button{border:0;border-radius:980px;background:var(--fill);color:var(--ink);box-shadow:none;font-weight:500;padding:10px 20px}
+button:active:not(:disabled){background:var(--fill-press)}
+button.main{background:var(--blue);color:#fff;box-shadow:none;font-weight:600;padding-inline:22px}
+button.main:active:not(:disabled){background:var(--blue-hover)}
+
+/* Resultados */
+.sum{border:0;border-radius:14px}
+.case{border:0;border-radius:14px;box-shadow:0 1px 2px var(--sh),0 4px 14px var(--sh2)}
+.case.fail{background:color-mix(in srgb,var(--red) 5%,var(--card))}
+
+/* Desplegables: la fila se ilumina al instante al tocarla y se apaga suave al soltar */
+details{border:0;border-radius:14px;box-shadow:0 1px 2px var(--sh),0 4px 14px var(--sh2);transition:background-color 220ms ease}
+details:has(>summary:active){background:var(--code);transition-duration:0ms}
+.foot{background:transparent;color:var(--faint);border-top:1px solid var(--line);font-size:13px;letter-spacing:-.01em}
+/* Dentro de una tarjeta, casos y desplegables son superficies grises planas, no tarjetas encimadas */
+.card .case,.card details{background:var(--code);box-shadow:none}
+.card .case.fail{background:color-mix(in srgb,var(--red) 8%,var(--code))}
+.card .case pre{background:var(--card)}
+.card details:has(>summary:active){background:light-dark(#e8e8ed,#3a3a3c)}
+
+@media(hover:hover) and (pointer:fine){
+nav.tabs a:not([aria-current=true]):hover{background:var(--fill);color:var(--ink)}
+.picker a:not([aria-current=true]):hover{box-shadow:0 1px 2px var(--sh),0 8px 22px var(--sh2)}
+button:not(.main):not(:disabled):hover{background:var(--fill-press);color:var(--ink)}
+button.main:not(:disabled):hover{background:var(--blue-hover);filter:none}
+summary:hover{color:var(--ink)}
+}
+@media(max-width:700px){nav.tabs a{padding:9px 18px}}
+
+/* Botón de modo claro/oscuro */
+.hwrap{position:relative}
+.theme-toggle{position:absolute;top:-36px;right:0;width:44px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border-radius:50%;background:var(--fill);color:var(--ink)}
+.theme-toggle svg{width:20px;height:20px;grid-area:1/1}
+.theme-toggle .i-sun{display:none}
+:root[data-theme=dark] .theme-toggle .i-sun{display:block}:root[data-theme=dark] .theme-toggle .i-moon{display:none}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .theme-toggle .i-sun{display:block}:root:not([data-theme=light]) .theme-toggle .i-moon{display:none}}
+@media(prefers-reduced-motion:no-preference){.theme-toggle svg{animation:icon-in 220ms var(--ease-out)}}
+@keyframes icon-in{from{opacity:0;transform:rotate(-40deg) scale(.85)}}
+
+/* ---------- Movimiento: hover, presión y abrir/cerrar ---------- */
+/* Presión asimétrica: se hunde rápido (100ms) y vuelve con calma (160ms, ease-out fuerte) */
+button:active:not(:disabled),.picker a:active,nav.tabs a:active{transition-duration:100ms}
+.status i{transition:background-color 300ms ease,box-shadow 300ms ease}
+
+/* Desplegables: la altura y la opacidad se abren y cierran juntas (navegadores con ::details-content; el resto abre al instante) */
+details,details[open]{padding-bottom:0}
+details>:last-child{margin-bottom:14px}
+@supports selector(::details-content){
+  details{interpolate-size:allow-keywords}
+  details::details-content{block-size:0;opacity:0;overflow:clip;
+    transition:block-size 220ms var(--ease-out),opacity 180ms var(--ease-out),content-visibility 220ms allow-discrete}
+  details[open]::details-content{block-size:auto;opacity:1}
+}
+
+@media(hover:hover) and (pointer:fine){
+  /* Elevación casi imperceptible: las baldosas se usan decenas de veces */
+  .picker a:not([aria-current=true]):hover{transform:translateY(-1px)}
+}
+
+@media(prefers-reduced-motion:no-preference){
+  /* Cambio de vista y de ejercicio: el contenido nuevo aparece en vez de saltar */
+  #v-rep:not([hidden]),#ex>.card{animation:view-in 220ms var(--ease-out)}
+}
+@keyframes view-in{from{opacity:0;transform:translateY(6px)}}
+@media(prefers-reduced-motion:reduce){
+  #v-rep:not([hidden]),#ex>.card{animation:view-fade 160ms ease}
+  @supports selector(::details-content){details::details-content{transition:opacity 180ms ease,content-visibility 180ms allow-discrete}}
+  .picker a:not([aria-current=true]):hover{transform:none}
+}
+@keyframes view-fade{from{opacity:0}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <button type="button" class="theme-toggle" id="theme" aria-label="Cambiar modo claro u oscuro" title="Cambiar modo claro u oscuro">
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>
+    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+  </button>
+  <h1>Repaso: bucles y listas en Python</h1>
+  <p class="sub">Todo lo que entra en la evaluación y cinco ejercicios del mismo tipo, que se corrigen al instante con casos de prueba.</p>
+  <div class="status" id="st"><i></i><span>Preparando Python… la primera vez demora unos segundos</span></div>
+  <nav class="tabs"><a href="#repaso" id="t-rep">Qué repasar</a><a href="#ej1" id="t-ej">Ejercicios</a></nav>
+</div></header>
+
+<main><div class="wrap">
+<section id="v-rep">
+  <h2>Qué hay que saber para la evaluación</h2>
+  <p class="lead">La evaluación tiene cinco tipos de ejercicio. Todos usan las mismas ocho piezas de Python. Si las entiendes y resuelves los cinco ejercicios de la otra pestaña, llegas preparado.</p>
+
+  <div class="card">
+    <h3>Las reglas de todos los ejercicios</h3>
+    <ul>
+      <li><b>Sin definir funciones propias</b>: no se usa <code>def</code>. Sí se usan las de Python: <code>input</code>, <code>int</code>, <code>print</code>, <code>len</code>, <code>range</code>.</li>
+      <li><b>El bucle que pide la consigna</b>: si dice <code>for</code>, no vale <code>while</code>, y al revés.</li>
+      <li><b>Nombres y formato exactos</b>: la lista se llama como dice el enunciado y la salida se escribe igual que el formato pedido. Corrige un programa que compara el texto: <code>Suma: 18</code> está bien; <code>La suma es 18</code>, no.</li>
+    </ul>
+  </div>
+
+  <h3>Las ocho piezas de Python</h3>
+  <div class="two">
+    <div class="card"><h3>1. Pedir un número</h3><p><code>input</code> siempre devuelve texto; <code>int</code> lo convierte en entero.</p><pre>edad = int(input("Edad: "))</pre></div>
+    <div class="card"><h3>2. Mostrar resultados</h3><p><code>print</code> separa con un espacio lo que va entre comas. Con <code>f</code> se meten variables entre llaves.</p><pre>print("Suma:", 18)       # Suma: 18
+print(f"Nota {1}: {7}")   # Nota 1: 7</pre></div>
+    <div class="card"><h3>3. Decidir con if</h3><p><code>==</code> igual, <code>!=</code> distinto, <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code>. El resto de dividir es <code>%</code>: si <code>n % 6 == 0</code>, n es múltiplo de 6.</p><pre>if nota &gt;= 5:
+    print("Aprobado")</pre></div>
+    <div class="card"><h3>4. Repetir N veces: for</h3><p><code>range</code> <mark>no incluye el último número</mark>. El tercer valor es el paso.</p><pre>for i in range(1, n + 1):
+    print(i)    # 1 hasta n, incluido
+for i in range(6, 20, 6):
+    print(i)    # 6, 12, 18</pre></div>
+    <div class="card"><h3>5. Repetir mientras: while</h3><p>Algo adentro tiene que cambiar la condición; si no, el bucle no termina nunca.</p><pre>i = 1
+while i &lt;= 3:
+    print(i)
+    i += 1      # sin esto, bucle infinito</pre></div>
+    <div class="card"><h3>6. Listas</h3><p>Guardan valores en orden. Las posiciones <mark>empiezan en 0</mark>.</p><pre>notas = []          # vacía
+notas.append(7)     # [7]
+notas.append(4)     # [7, 4]
+print(notas[0])     # 7
+print(len(notas))   # 2
+print(notas)        # [7, 4]</pre></div>
+    <div class="card"><h3>7. Recorrer una lista</h3><p>Con <code>for</code> se toma cada elemento; con <code>while</code> se usa una posición <code>i</code>.</p><pre>for n in notas:
+    print(n)
+
+i = 0
+while i &lt; len(notas):
+    print(notas[i])
+    i += 1</pre></div>
+    <div class="card"><h3>8. Acumulador y contador</h3><p>Los dos empiezan en 0 <mark>antes</mark> del bucle. Uno suma valores; el otro suma 1 cuando pasa algo.</p><pre>suma = 0
+aprobadas = 0
+for n in notas:
+    suma += n
+    if n &gt;= 5:
+        aprobadas += 1</pre></div>
+  </div>
+
+  <h3>Los cinco tipos de ejercicio</h3>
+  <div class="card scroll">
+    <table class="stack">
+      <thead><tr><th>Tipo</th><th>Bucle</th><th>La clave</th><th>Error típico</th></tr></thead>
+      <tbody>
+        <tr><td>1. Sumar o contar en un rango</td><td><code>for</code> + <code>range</code></td><td>Incluir el límite: <code>range(1, n + 1)</code></td><td>Usar <code>range(1, n)</code> y dejar afuera el límite</td></tr>
+        <tr><td>2. Cargar hasta -1 y recorrer</td><td><code>while</code> y <code>while</code></td><td>El -1 corta pero no se guarda; mostrar desde 1</td><td>Agregar el -1 a la lista o mostrar <code>Nota 0</code></td></tr>
+        <tr><td>3. Récord que se actualiza</td><td><code>for</code> y <code>for</code></td><td>Mayor estricto (<code>&gt;</code>) y actualizar el récord</td><td>No hacer <code>record = valor</code> o pisar el contador</td></tr>
+        <tr><td>4. Llegar a una meta</td><td><code>while</code></td><td><code>while total &lt; meta</code>; meta 0 = cero vueltas</td><td>Usar <code>&lt;=</code> y dar una vuelta de más</td></tr>
+        <tr><td>5. Cargar N datos y total</td><td><code>for</code></td><td>Pedir primero la cantidad; <code>print(lista)</code> y total</td><td>Olvidar <code>int()</code>: la lista queda como <code>['10', '8']</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Antes de entregar, revisa</h3>
+  <div class="card">
+    <ul class="check">
+      <li>¿El rango incluye el límite cuando el enunciado dice "incluido"?</li>
+      <li>¿Usaste el operador justo? "Mayor o igual" es <code>&gt;=</code>, "mayor" es <code>&gt;</code>, "menos de" es <code>&lt;</code>.</li>
+      <li>¿Cada <code>while</code> tiene algo adentro que cambia su condición (un <code>input</code> o un <code>i += 1</code>)?</li>
+      <li>¿Los acumuladores y contadores empiezan en 0 antes del bucle?</li>
+      <li>¿La lista empieza vacía y se llama exactamente como pide el enunciado?</li>
+      <li>¿El valor de corte se pregunta antes del <code>append</code>?</li>
+      <li>¿Numeras desde 1 con <code>i + 1</code>?</li>
+      <li>¿El récord se actualiza cuando se supera, y el contador es otra variable?</li>
+      <li>¿La salida es idéntica al formato pedido, con mayúsculas y dos puntos?</li>
+      <li>¿Probaste el caso sin datos (lista vacía o meta 0)?</li>
+    </ul>
+  </div>
+  <p><a class="next" href="#ej1">Ir al ejercicio 1 →</a></p>
+</section>
+
+<section id="v-ej" hidden>
+  <div class="picker" id="pick"></div>
+  <div id="ex"></div>
+</section>
+</div></main>
+<footer class="foot">Profesor Bruno Silva</footer>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+{
+const EX = [{"id": "ej1", "n": 1, "titulo": "Suma de múltiplos de 7", "tipo": "for con range", "bucle": "for (no uses while)", "need": ["for"], "ban": ["while"], "lista": null, "enunciado": "<p>Escribe un programa (sin definir funciones propias) que pida un número entero <code>limite<\/code> y, usando <b>un bucle for<\/b> con <code>range<\/code>, calcule la <b>suma de todos los múltiplos de 7 entre 1 y limite<\/b>, incluido limite. Al final, muestra el resultado con el formato <code>Suma: X<\/code>.<\/p><p>Ejemplo: si limite es 20, los números que cumplen son 7 y 14, así que se muestra <code>Suma: 21<\/code>.<\/p>", "pista": "Recorre de 1 a limite con <code>range(1, limite + 1)<\/code> y pregunta si <code>i % 7 == 0<\/code>. El acumulador empieza en 0 antes del bucle.", "sol": "limite = int(input(\"Ingresa el límite: \"))\nsuma = 0\nfor i in range(1, limite + 1):\n    if i % 7 == 0:\n        suma += i\nprint(\"Suma:\", suma)", "casos": [[["20"], "Suma: 21"], [["14"], "Suma: 21"], [["6"], "Suma: 0"], [["50"], "Suma: 196"]]}, {"id": "ej2", "n": 2, "titulo": "Kilómetros en bicicleta", "tipo": "while hasta -1 + recorrer con while", "bucle": "while (no uses for)", "need": ["while", "while"], "ban": ["for"], "lista": "recorridos", "enunciado": "<p>Una estudiante anota cuántos kilómetros anduvo en bicicleta cada día y quiere saber cuántos días hizo un recorrido largo.<\/p><p>Escribe un programa (sin definir funciones propias) que haga lo siguiente, paso a paso:<\/p><ol><li>Crear una lista <b>vacía<\/b> llamada <code>recorridos<\/code>.<\/li><li>Con un bucle <code>while<\/code>, pedir los kilómetros (números enteros) uno por uno y agregar cada uno a la lista, <b>hasta que se ingrese -1<\/b>. El -1 solo indica el final: <b>no se agrega<\/b> a la lista.<\/li><li>Recorrer la lista con otro bucle <code>while<\/code> y mostrar cada elemento numerado, en su propia línea: <code>Día 1: X<\/code>, <code>Día 2: X<\/code>, y así hasta el último.<\/li><li>Durante ese recorrido, contar cuántos días fueron largos (<b>10 km o más<\/b>) y, al final, mostrar <code>Días largos: N<\/code>.<\/li><\/ol><p>Ojo con la numeración: el primer elemento se muestra como Día 1, aunque su posición en la lista sea 0.<\/p>", "pista": "Pide un dato antes del <code>while<\/code> y otro al final de cada vuelta, así el -1 nunca llega al <code>append<\/code>. Para recorrer, usa <code>i = 0<\/code> y <code>while i &lt; len(recorridos)<\/code>, sin olvidar <code>i += 1<\/code>.", "sol": "recorridos = []\nkm = int(input(\"Kilómetros (-1 para terminar): \"))\nwhile km != -1:\n    recorridos.append(km)\n    km = int(input(\"Kilómetros (-1 para terminar): \"))\n\ni = 0\nlargos = 0\nwhile i < len(recorridos):\n    print(f\"Día {i + 1}: {recorridos[i]}\")\n    if recorridos[i] >= 10:\n        largos += 1\n    i += 1\nprint(\"Días largos:\", largos)", "casos": [[["12", "8", "10", "-1"], "Día 1: 12\nDía 2: 8\nDía 3: 10\nDías largos: 2"], [["5", "9", "-1"], "Día 1: 5\nDía 2: 9\nDías largos: 0"], [["-1"], "Días largos: 0"], [["30", "-1"], "Día 1: 30\nDías largos: 1"]]}, {"id": "ej3", "n": 3, "titulo": "Lanzamiento de bala", "tipo": "récord con for", "bucle": "for (no uses while)", "need": ["for", "for"], "ban": ["while"], "lista": "lanzamientos", "enunciado": "<p>En Educación Física se miden los lanzamientos de bala de un estudiante (en centímetros) y se quiere saber cuántas veces superó su mejor marca.<\/p><p>El <b>primer<\/b> valor de la lista es el <b>récord inicial<\/b>. Un valor <b>supera el récord<\/b> cuando es <b>mayor<\/b> que el récord actual, y desde ahí pasa a ser el nuevo récord. Si un valor es <b>igual<\/b> al récord, no lo supera.<\/p><ol><li>Crear una lista <b>vacía<\/b> llamada <code>lanzamientos<\/code>.<\/li><li>Con un bucle <code>for<\/code>, pedir <b>5<\/b> lanzamientos (números enteros), uno por uno, y agregar cada uno a la lista.<\/li><li>Con otro bucle <code>for<\/code>, recorrer la lista y contar cuántas veces se superó el récord actual.<\/li><li>Al final, mostrar <code>Superó el récord: N veces<\/code>.<\/li><\/ol>", "pista": "Guarda el récord en una variable (<code>record = lanzamientos[0]<\/code>) y el contador en otra. Cuando un valor supera el récord: el contador suma 1 <b>y<\/b> el récord pasa a ser ese valor. No mezcles las dos variables.", "sol": "lanzamientos = []\nfor i in range(5):\n    l = int(input(f\"Lanzamiento {i + 1} (cm): \"))\n    lanzamientos.append(l)\n\nrecord = lanzamientos[0]\nveces = 0\nfor l in lanzamientos:\n    if l > record:\n        veces += 1\n        record = l\nprint(\"Superó el récord:\", veces, \"veces\")", "casos": [[["300", "310", "310", "320", "315"], "Superó el récord: 2 veces"], [["450", "500", "550", "600", "650"], "Superó el récord: 4 veces"], [["600", "500", "550", "590", "600"], "Superó el récord: 0 veces"], [["500", "480", "520", "520", "530"], "Superó el récord: 2 veces"]]}, {"id": "ej4", "n": 4, "titulo": "Campaña de tapitas", "tipo": "while hasta una meta", "bucle": "while (no uses for)", "need": ["while"], "ban": ["for"], "lista": null, "enunciado": "<p>El grupo junta tapitas para una campaña solidaria. Cada día juntan la misma cantidad y quieren saber cuántos días necesitan.<\/p><ol><li>Pedir la meta de tapitas y después cuántas tapitas juntan por día (los dos son números enteros).<\/li><li>Con un bucle <code>while<\/code>, ir sumando las tapitas del día una y otra vez <b>mientras no se haya llegado a la meta<\/b>. Cuando el total llega a la meta o la pasa, se termina.<\/li><li>Al final, mostrar dos líneas: <code>Días: N<\/code> y <code>Tapitas juntadas: X<\/code>.<\/li><\/ol><p>Si la meta es 0, no hace falta ninguna vuelta: se muestra <code>Días: 0<\/code> y <code>Tapitas juntadas: 0<\/code>.<\/p>", "pista": "La condición es <code>while total &lt; meta<\/code>. Con <code>&lt;=<\/code> se da una vuelta de más cuando se llega justo a la meta.", "sol": "meta = int(input(\"Meta de tapitas: \"))\npor_dia = int(input(\"Tapitas por día: \"))\ntotal = 0\ndias = 0\nwhile total < meta:\n    total += por_dia\n    dias += 1\nprint(\"Días:\", dias)\nprint(\"Tapitas juntadas:\", total)", "casos": [[["100", "30"], "Días: 4\nTapitas juntadas: 120"], [["90", "30"], "Días: 3\nTapitas juntadas: 90"], [["0", "25"], "Días: 0\nTapitas juntadas: 0"], [["10", "40"], "Días: 1\nTapitas juntadas: 40"]]}, {"id": "ej5", "n": 5, "titulo": "Visitas a la biblioteca", "tipo": "cargar N datos y total", "bucle": "for para cargar", "need": ["for"], "ban": [], "lista": "visitas", "enunciado": "<p>La biblioteca del liceo quiere analizar cuántas personas la visitaron.<\/p><p>El programa pregunta <b>cuántos días<\/b> se registraron. Después pide las <b>visitas de cada día, una por una y en orden<\/b>, y las guarda en una lista llamada <code>visitas<\/code>. Al terminar de cargarlas, muestra la lista y, en otra línea, el total de visitas con el formato <code>Total: X<\/code>.<\/p><p>Ejemplo: con 4 días y 10, 8, 15 y 12 visitas, se muestra:<\/p><pre>[10, 8, 15, 12]\nTotal: 45<\/pre>", "pista": "Como ya sabes cuántos datos vienen, el <code>for<\/code> con <code>range(dias)<\/code> es el bucle natural. Para mostrar la lista con corchetes, basta con <code>print(visitas)<\/code>.", "sol": "visitas = []\ndias = int(input(\"¿Cuántos días? \"))\nfor i in range(dias):\n    v = int(input(f\"Visitas del día {i + 1}: \"))\n    visitas.append(v)\n\ntotal = 0\nfor v in visitas:\n    total += v\nprint(visitas)\nprint(\"Total:\", total)", "casos": [[["4", "10", "8", "15", "12"], "[10, 8, 15, 12]\nTotal: 45"], [["1", "20"], "[20]\nTotal: 20"], [["3", "0", "0", "5"], "[0, 0, 5]\nTotal: 5"], [["0"], "[]\nTotal: 0"]]}];
+const KEY = 'repaso-python-v1';
+let store = {code:{}, ok:{}};
+try { store = Object.assign(store, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const $ = id => document.getElementById(id);
+const START = '# Escribe tu programa aquí\n';
+
+const H = `
+import sys, io
+class _Lim(BaseException):
+    pass
+_vals = list(__inputs)
+_c = [0]
+def _inp(prompt=''):
+    if not _vals:
+        raise EOFError()
+    return _vals.pop(0)
+def _tr(frame, event, arg):
+    _c[0] += 1
+    if _c[0] > 20000:
+        raise _Lim()
+    return _tr
+_out = io.StringIO()
+_old = sys.stdout
+_err = None
+sys.stdout = _out
+sys.settrace(_tr)
+try:
+    exec(__code, {'__name__': '__main__', 'input': _inp})
+except _Lim:
+    _err = 'LIM'
+except EOFError:
+    _err = 'EOF'
+except BaseException as ex:
+    _err = type(ex).__name__ + ': ' + str(ex)
+finally:
+    sys.settrace(None)
+    sys.stdout = _old
+[_out.getvalue(), _err]
+`;
+
+let py = null;
+const setStatus = (cls, text) => { const s = $('st'); s.className = 'status ' + cls; s.querySelector('span').textContent = text; };
+const pyReady = (async () => {
+  try {
+    if (typeof loadPyodide !== 'function') throw new Error('sin script');
+    py = await loadPyodide();
+    setStatus('ok', 'Python listo para probar tus programas');
+    return true;
+  } catch (e) {
+    setStatus('bad', 'No se pudo cargar Python. Revisa la conexión y recarga la página; las soluciones igual están disponibles.');
+    return false;
+  }
+})();
+
+function runCase(code, inputs) {
+  py.globals.set('__code', code);
+  py.globals.set('__inputs', py.toPy(inputs));
+  const r = py.runPython(H);
+  const a = r.toJs(); r.destroy();
+  return {out: a[0], err: a[1] == null ? null : String(a[1])};
+}
+const clip = s => { const l = s.split('\n'); return l.length > 25 ? l.slice(0, 25).join('\n') + '\n… (' + (l.length - 25) + ' líneas más)' : s; };
+// Pistas para salidas que casi coinciden (solo cuando no hubo error)
+function hint(exp, got) {
+  if (!got) return '';
+  const squash = t => t.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (squash(exp) === squash(got)) return 'Casi: la diferencia está en espacios de más o en mayúsculas. Compara letra por letra con el formato pedido.';
+  if (/\[\s*'-?\d+'/.test(got)) return "Tu lista guarda textos (por ejemplo '10'), no números: falta int() al leer cada dato.";
+  const x = exp.split('\n'), extra = [];
+  let i = 0;
+  for (const l of got.split('\n')) { if (i < x.length && l === x[i]) i++; else extra.push(l); }
+  if (i === x.length && extra.length && extra.every(l => /[:?]\s*$/.test(l) || !/\d/.test(l)))
+    return 'Tu programa muestra líneas de más. Si usas print() para pedir un dato, pon ese texto dentro de input("...").';
+  return '';
+}
+const norm = s => s.replace(/\r/g,'').split('\n').map(l => l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+
+function friendly(err) {
+  if (err === 'EOF') return 'El programa pidió más datos de los que trae este caso. Revisa cuántas veces pides datos y que el -1 corte el bucle.';
+  if (err === 'LIM') return 'El programa no terminó: parece un bucle infinito. Revisa que algo dentro del while cambie la condición.';
+  if (/^(SyntaxError|IndentationError|TabError)/.test(err)) return 'Error de escritura: ' + err + '. Revisa los dos puntos al final de for, while e if, los paréntesis y la sangría.';
+  if (/^NameError/.test(err)) return 'Usaste un nombre que no existe: ' + err + '. ¿Está bien escrito? ¿La variable se crea antes de usarla?';
+  if (/^ValueError/.test(err)) return 'Error al convertir un dato: ' + err + '.';
+  if (/^(TypeError)/.test(err)) return 'Error de tipos: ' + err + '. ¿Olvidaste int() al leer un dato?';
+  if (/^IndexError/.test(err)) return 'Posición fuera de la lista: ' + err + '. Revisa los índices (empiezan en 0 y terminan en len − 1).';
+  return 'Error: ' + err;
+}
+
+function rules(e, code) {
+  const s = code.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')/g, '""').replace(/#.*$/gm, '');
+  const count = w => (s.match(new RegExp('\\b' + w + '\\b', 'g')) || []).length;
+  const out = [{ok: !/\bdef\b/.test(s), t: 'No define funciones propias (sin def)'}];
+  const need = {};
+  e.need.forEach(w => need[w] = (need[w] || 0) + 1);
+  for (const w in need) out.push({ok: count(w) >= need[w], t: need[w] > 1 ? `Usa ${need[w]} bucles ${w}` : `Usa un bucle ${w}`});
+  e.ban.forEach(w => out.push({ok: count(w) === 0, t: `No usa ${w}`}));
+  if (e.lista) out.push({ok: new RegExp('\\b' + e.lista + '\\s*=\\s*(\\[\\s*\\]|list\\(\\s*\\))').test(s), t: `Crea la lista vacía ${e.lista}`});
+  return out;
+}
+
+function picker(cur) {
+  $('pick').innerHTML = EX.map(e => `<a href="#${e.id}" class="${store.ok[e.id] ? 'done' : ''}" aria-current="${e.id === cur}"><b>Ejercicio ${e.n}</b>${esc(e.titulo)}</a>`).join('');
+}
+
+function showEx(id) {
+  const e = EX.find(x => x.id === id) || EX[0];
+  picker(e.id);
+  $('ex').innerHTML = `
+  <div class="card">
+    <h2>${e.n}. ${esc(e.titulo)}</h2>
+    <div class="chips"><span class="chip">Tipo: ${esc(e.tipo)}</span><span class="chip loop">Bucle esperado: ${esc(e.bucle)}</span></div>
+    <div class="enun">${e.enunciado}</div>
+    <div class="ed">
+      <label for="code">Tu programa</label>
+      <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      <div class="btns"><button class="main" id="run">Probar mi programa</button><button id="reset">Borrar y empezar de nuevo</button></div>
+      <p class="note">El texto que pongas dentro de <code>input()</code> no importa: el corrector ingresa los datos solo. Tu código se guarda en este navegador.</p>
+    </div>
+    <div class="res" id="res" aria-live="polite"></div>
+    <details><summary>Ver una pista</summary><p>${e.pista}</p></details>
+    <details><summary>Ver la solución (después de intentarlo)</summary><pre>${esc(e.sol)}</pre><p class="note">Hay otras soluciones correctas: si la tuya pasa todos los casos y usa el bucle pedido, está bien.</p></details>
+  </div>
+  ${e.n < 5 ? `<p><a class="next" href="#ej${e.n + 1}">Siguiente: ejercicio ${e.n + 1} →</a></p>` : `<p><a class="next" href="#repaso">← Volver a qué repasar</a></p>`}`;
+  const ta = $('code');
+  ta.value = store.code[e.id] || START;
+  ta.addEventListener('input', () => { store.code[e.id] = ta.value; save(); });
+  ta.addEventListener('keydown', ev => {
+    const v = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+    if (ev.key === 'Tab') {
+      ev.preventDefault();
+      const ls = v.lastIndexOf('\n', a - 1) + 1;
+      if (ev.shiftKey) { const m = v.slice(ls).match(/^ {1,4}/); if (m) { ta.setRangeText('', ls, ls + m[0].length, 'end'); ta.selectionStart = ta.selectionEnd = Math.max(ls, a - m[0].length); } }
+      else ta.setRangeText('    ', a, b, 'end');
+      ta.dispatchEvent(new Event('input'));
+    } else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      const line = v.slice(v.lastIndexOf('\n', a - 1) + 1, a);
+      let ind = line.match(/^ */)[0];
+      if (/:\s*$/.test(line)) ind += '    ';
+      ta.setRangeText('\n' + ind, a, b, 'end');
+      ta.dispatchEvent(new Event('input'));
+    }
+  });
+  $('reset').addEventListener('click', () => { ta.value = START; store.code[e.id] = START; save(); $('res').innerHTML = ''; ta.focus(); });
+  $('run').addEventListener('click', async () => {
+    const btn = $('run'), res = $('res');
+    btn.disabled = true; btn.textContent = 'Probando…';
+    const ok = await pyReady;
+    if (!ok) { res.innerHTML = '<p class="msg">Python no está disponible en este momento. Recarga la página con conexión a internet.</p>'; btn.disabled = false; btn.textContent = 'Probar mi programa'; return; }
+    setTimeout(() => {
+      const code = ta.value;
+      const rs = rules(e, code);
+      const cs = e.casos.map(([inp, exp]) => {
+        let r; try { r = runCase(code, inp); } catch (x) { r = {out: '', err: String(x)}; }
+        const got = norm(r.out);
+        return {inp, exp, got, err: r.err, pass: !r.err && got === exp};
+      });
+      const nOk = cs.filter(c => c.pass).length, allRules = rs.every(r => r.ok);
+      const all = nOk === cs.length && allRules;
+      store.ok[e.id] = all; save(); picker(e.id);
+      res.innerHTML = `
+        <p class="sum ${all ? 'ok' : 'bad'}">${all ? '¡Todo correcto! Pasaste los ' + cs.length + ' casos.' : nOk + ' de ' + cs.length + ' casos correctos' + (allRules ? '' : ' · revisa las reglas de la consigna')}</p>
+        ${rs.map(r => `<div class="rule"><span class="${r.ok ? 'y' : 'n'}">${r.ok ? '✓' : '✗'}</span><span>${esc(r.t)}</span></div>`).join('')}
+        ${cs.map((c, i) => `<div class="case ${c.pass ? '' : 'fail'}">
+          <p><b>${c.pass ? '✓' : '✗'} Caso ${i + 1}</b> · Datos que ingresa el corrector: ${esc(c.inp.join(', '))}</p>
+          ${c.pass ? '' : `<div class="cmp"><div><small>Se esperaba</small><pre>${esc(c.exp)}</pre></div><div><small>Tu programa mostró</small><pre>${esc(clip(c.got) || '(nada)')}</pre></div></div>${c.err ? `<p class="msg">${esc(friendly(c.err))}</p>` : (hint(c.exp, c.got) ? `<p class="hint">${esc(hint(c.exp, c.got))}</p>` : '')}`}
+        </div>`).join('')}`;
+      btn.disabled = false; btn.textContent = 'Probar mi programa';
+    }, 20);
+  });
+}
+
+function route() {
+  const h = location.hash.slice(1) || 'repaso';
+  const isEx = /^ej[1-5]$/.test(h);
+  $('v-rep').hidden = isEx; $('v-ej').hidden = !isEx;
+  $('t-rep').setAttribute('aria-current', String(!isEx));
+  $('t-ej').setAttribute('aria-current', String(isEx));
+  if (isEx) { showEx(h); $('t-ej').href = '#' + h; try { localStorage.setItem(KEY + '-last', h); } catch (e) {} }
+  window.scrollTo(0, 0);
+}
+let last = 'ej1';
+try { last = localStorage.getItem(KEY + '-last') || 'ej1'; } catch (e) {}
+$('t-ej').href = '#' + last;
+window.addEventListener('hashchange', route);
+route();
+}
+</script>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script>
+{
+  const root = document.documentElement, btn = document.getElementById('theme');
+  const dark = matchMedia('(prefers-color-scheme: dark)');
+  const current = () => root.dataset.theme || (dark.matches ? 'dark' : 'light');
+  const label = () => { const t = current() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'; btn.setAttribute('aria-label', t); btn.title = t; };
+  btn.addEventListener('click', () => {
+    const next = current() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('repaso-python-theme', next); } catch (e) {}
+    label();
+  });
+  dark.addEventListener?.('change', label);
+  label();
+}
+</script>
+</body>
+</html>
